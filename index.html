@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Posh Duck — Pricing Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1B2A;
+    --steel:#8391AE;
+    --crimson:#A81E37;
+    --pink:#F499C1;
+    --paper:#F4F1EA;
+    --ink:#0B1B2A;
+    --line:rgba(11,27,42,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Outfit',sans-serif;
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(244,153,193,.18), transparent 60%),
+      radial-gradient(700px 600px at -10% 110%, rgba(131,145,174,.22), transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    min-height:100%;
+    padding:32px 20px 80px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+
+  /* header */
+  header{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    gap:24px;flex-wrap:wrap;
+    border-bottom:2px solid var(--navy);
+    padding-bottom:20px;margin-bottom:30px;
+  }
+  .brand h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;font-size:38px;line-height:1;
+    letter-spacing:-.02em;color:var(--navy);
+  }
+  .brand .mark{
+    display:inline-block;width:9px;height:9px;border-radius:50%;
+    background:var(--crimson);margin-right:10px;vertical-align:middle;
+  }
+  .brand p{
+    font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--steel);margin-top:8px;font-weight:500;
+  }
+  .tagline{
+    text-align:right;font-size:12.5px;color:var(--steel);
+    max-width:230px;line-height:1.5;
+  }
+
+  /* layout */
+  .grid{display:grid;grid-template-columns:0.95fr 1.05fr;gap:26px;align-items:start;}
+  @media(max-width:820px){.grid{grid-template-columns:1fr;}}
+
+  .card{
+    background:#fff;border:1px solid var(--line);
+    border-radius:14px;padding:26px;
+    box-shadow:0 1px 0 rgba(11,27,42,.04),0 22px 40px -28px rgba(11,27,42,.4);
+  }
+  .card h2{
+    font-family:'Fraunces',serif;font-weight:600;font-size:19px;
+    color:var(--navy);margin-bottom:4px;
+  }
+  .card .sub{font-size:12.5px;color:var(--steel);margin-bottom:20px;}
+
+  label{
+    display:block;font-size:11.5px;font-weight:600;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--navy);margin-bottom:7px;
+  }
+  .field{margin-bottom:17px;}
+  input[type=text],textarea,select{
+    width:100%;font-family:'Outfit',sans-serif;font-size:15px;
+    color:var(--ink);background:var(--paper);
+    border:1px solid var(--line);border-radius:9px;
+    padding:12px 13px;transition:border-color .15s,box-shadow .15s;
+  }
+  textarea{resize:vertical;min-height:74px;}
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--navy);
+    box-shadow:0 0 0 3px rgba(11,27,42,.08);
+  }
+  select{appearance:none;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%230B1B2A' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;padding-right:34px;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+
+  .btn{
+    width:100%;font-family:'Outfit',sans-serif;font-weight:600;
+    font-size:14.5px;letter-spacing:.03em;cursor:pointer;
+    border:none;border-radius:9px;padding:14px;
+    transition:transform .12s,filter .15s;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--navy);color:#fff;margin-top:4px;}
+  .btn-primary:hover{filter:brightness(1.18);}
+  .btn-ghost{
+    background:#fff;color:var(--navy);border:1px solid var(--navy);
+    margin-top:10px;
+  }
+  .btn-ghost:hover{background:var(--navy);color:#fff;}
+
+  /* result */
+  .result-empty{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;min-height:340px;color:var(--steel);
+  }
+  .result-empty .ring{
+    width:54px;height:54px;border-radius:50%;
+    border:2px dashed var(--steel);margin-bottom:16px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-size:24px;color:var(--steel);
+  }
+  .result-empty p{font-size:13.5px;max-width:240px;line-height:1.55;}
+
+  .price-hero{
+    text-align:center;padding:8px 0 18px;border-bottom:1px solid var(--line);
+    margin-bottom:18px;
+  }
+  .price-hero .tier-chip{
+    display:inline-block;font-size:10.5px;font-weight:600;
+    letter-spacing:.12em;text-transform:uppercase;
+    background:var(--navy);color:var(--pink);
+    padding:5px 11px;border-radius:20px;margin-bottom:14px;
+  }
+  .price-hero .suggested{
+    font-family:'Fraunces',serif;font-weight:700;
+    font-size:58px;line-height:1;color:var(--navy);letter-spacing:-.03em;
+  }
+  .price-hero .suggested-label{
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--crimson);font-weight:600;margin-top:8px;
+  }
+  .price-hero .range{
+    font-size:14px;color:var(--steel);margin-top:10px;
+  }
+  .price-hero .range b{color:var(--navy);font-weight:600;}
+
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .meta-tag{
+    font-size:11.5px;background:var(--paper);border:1px solid var(--line);
+    border-radius:7px;padding:6px 10px;color:var(--navy);
+  }
+  .meta-tag span{color:var(--steel);}
+
+  .calc{margin-bottom:18px;}
+  .calc-title{
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--steel);font-weight:600;margin-bottom:9px;
+  }
+  .calc-line{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:13px;padding:6px 0;border-bottom:1px dotted var(--line);
+  }
+  .calc-line:last-child{border-bottom:none;}
+  .calc-line .lbl{color:var(--navy);}
+  .calc-line .lbl em{font-style:normal;color:var(--steel);font-size:11.5px;}
+  .calc-line .val{font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;}
+  .calc-line .val.up{color:var(--crimson);}
+  .calc-line .val.down{color:var(--steel);}
+
+  .flag{
+    font-size:12.5px;line-height:1.5;border-radius:9px;
+    padding:11px 13px;margin-bottom:9px;display:flex;gap:9px;
+  }
+  .flag b{font-weight:600;}
+  .flag-warn{background:rgba(168,30,55,.07);border:1px solid rgba(168,30,55,.28);color:var(--crimson);}
+  .flag-info{background:rgba(131,145,174,.12);border:1px solid rgba(131,145,174,.4);color:var(--navy);}
+  .flag .dot{font-weight:700;}
+
+  /* comps */
+  .comps{margin-top:22px;}
+  .comp-block{margin-bottom:18px;}
+  .comp-head{
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--steel);font-weight:600;margin-bottom:9px;
+  }
+  .comp-btns{display:flex;gap:9px;flex-wrap:wrap;}
+  .comp-btns a{
+    flex:1;min-width:120px;text-align:center;text-decoration:none;
+    font-size:12.5px;font-weight:600;color:var(--navy);
+    background:#fff;border:1px solid var(--navy);border-radius:8px;
+    padding:10px 8px;transition:background .15s,color .15s;
+  }
+  .comp-btns a:hover{background:var(--navy);color:#fff;}
+
+  .auto-box{
+    background:var(--paper);border:1px dashed var(--steel);
+    border-radius:9px;padding:13px;
+  }
+  .auto-box .auto-title{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:7px;
+  }
+  .pending-pill{
+    font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+    background:var(--steel);color:#fff;padding:3px 8px;border-radius:11px;
+    font-weight:600;
+  }
+  .auto-box p{font-size:11.5px;color:var(--steel);line-height:1.5;}
+  .auto-row{
+    display:flex;justify-content:space-between;font-size:12.5px;
+    padding:5px 0;color:var(--navy);
+  }
+  .auto-row span{color:var(--steel);}
+
+  .lux-inputs{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+  @media(max-width:520px){.lux-inputs{grid-template-columns:1fr;}}
+  .lux-field label{
+    font-size:10.5px;letter-spacing:.05em;margin-bottom:5px;
+  }
+  .lux-comp{
+    width:100%;font-family:'Outfit',sans-serif;font-size:15px;
+    background:var(--paper);border:1px solid var(--line);
+    border-radius:8px;padding:10px 12px;
+  }
+  .lux-comp:focus{outline:none;border-color:var(--navy);
+    box-shadow:0 0 0 3px rgba(11,27,42,.08);}
+
+  footer{
+    text-align:center;margin-top:34px;font-size:11px;
+    color:var(--steel);letter-spacing:.04em;
+  }
+
+  /* consignor report overlay */
+  #reportOverlay{
+    display:none;position:fixed;inset:0;z-index:999;
+    background:rgba(11,27,42,.55);
+    overflow-y:auto;padding:24px 14px 60px;
+  }
+  #reportOverlay.open{display:block;}
+  #reportSheet{
+    max-width:640px;margin:0 auto;background:#fff;
+    border-radius:14px;overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.5);
+  }
+  .report-bar{
+    display:flex;gap:10px;justify-content:flex-end;
+    padding:14px 16px;border-bottom:1px solid var(--line);
+    background:var(--paper);position:sticky;top:0;
+  }
+  .rbtn{
+    font-family:'Outfit',sans-serif;font-weight:600;font-size:13.5px;
+    cursor:pointer;border-radius:8px;padding:10px 18px;border:1px solid var(--navy);
+  }
+  .rbtn-ghost{background:#fff;color:var(--navy);}
+  .rbtn-solid{background:var(--navy);color:#fff;}
+  .rbtn:active{transform:translateY(1px);}
+
+  #report{font-family:'Outfit',sans-serif;color:#0B1B2A;padding:30px 28px;}
+  #report h1{font-family:'Fraunces',serif;font-size:30px;color:var(--navy);}
+  #report .r-sub{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--steel);margin:6px 0 22px;border-bottom:2px solid var(--navy);padding-bottom:14px;}
+  #report h3{font-family:'Fraunces',serif;font-size:16px;margin:20px 0 8px;color:var(--navy);}
+  #report table{width:100%;border-collapse:collapse;font-size:13px;}
+  #report td{padding:7px 4px;border-bottom:1px solid #ddd;}
+  #report td:first-child{color:var(--steel);width:40%;}
+  #report .r-price{font-family:'Fraunces',serif;font-size:40px;color:var(--navy);margin:4px 0;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #reportOverlay,#reportOverlay *{visibility:visible;}
+    #reportOverlay{position:absolute;background:#fff;padding:0;inset:0;}
+    #reportSheet{box-shadow:none;max-width:100%;border-radius:0;}
+    .report-bar{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap no-print">
+
+  <header>
+    <div class="brand">
+      <h1><span class="mark"></span>The Posh Duck</h1>
+      <p>Buyer Pricing Tool</p>
+    </div>
+    <div class="tagline">Enter an item below. Pricing follows the Master Pricing &amp; Inventory SOP.</div>
+  </header>
+
+  <div class="grid">
+
+    <!-- INPUT -->
+    <div class="card">
+      <h2>Item Details</h2>
+      <div class="sub">Fill in what you know. Brand and category accept anything you type.</div>
+
+      <div class="field">
+        <label for="brand">Brand</label>
+        <input type="text" id="brand" placeholder="e.g. Vince, Chanel, Reformation">
+      </div>
+
+      <div class="field">
+        <label for="category">Category</label>
+        <input type="text" id="category" placeholder="e.g. denim, dress, jacket, bag, shoes">
+      </div>
+
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea id="description" placeholder="e.g. black caviar leather medium flap bag, gold hardware"></textarea>
+      </div>
+
+      <div class="two">
+        <div class="field">
+          <label for="demand">Demand</label>
+          <select id="demand">
+            <option value="High">High</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="condition">Condition</label>
+          <select id="condition">
+            <option value="New">New</option>
+            <option value="Like-New">Like-New</option>
+            <option value="Pre-Owned" selected>Pre-Owned</option>
+            <option value="Good">Good</option>
+            <option value="Fair">Fair</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="priceItem()">Calculate Price</button>
+      <button class="btn btn-ghost" onclick="openReport()">View Consignor Report</button>
+    </div>
+
+    <!-- RESULT -->
+    <div class="card" id="resultCard">
+      <div class="result-empty" id="emptyState">
+        <div class="ring">$</div>
+        <p>Enter a brand and category, then calculate to see a suggested price and range.</p>
+      </div>
+      <div id="resultBody" style="display:none;"></div>
+    </div>
+
+  </div>
+
+  <footer>The Posh Duck — Internal Pricing Tool · Pricing logic per Master Pricing &amp; Inventory SOP v2</footer>
+</div>
+
+<!-- CONSIGNOR REPORT OVERLAY -->
+<div id="reportOverlay">
+  <div id="reportSheet">
+    <div class="report-bar no-print">
+      <button class="rbtn rbtn-ghost" onclick="closeReport()">Close</button>
+      <button class="rbtn rbtn-solid" onclick="window.print()">Print / Save PDF</button>
+    </div>
+    <div id="report"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   THE POSH DUCK — PRICING ENGINE
+   Logic transcribed directly from Master Pricing & Inventory SOP v2
+   ============================================================ */
+
+/* --- SOP Section 2 + 3: Brand -> Tier map --- */
+const BRAND_TIERS = {
+  luxury: ["chanel","louis vuitton","lv","ysl","saint laurent","hermes","gucci",
+           "prada","dior","celine","bottega veneta","bottega","fendi","louboutin",
+           "christian louboutin"],
+  high:   ["zimmermann","isabel marant","ulla johnson","etro","veronica beard",
+           "a.l.c.","alc","alice + olivia","alice and olivia","alice+olivia",
+           "self-portrait","self portrait","ganni","anine bing","rick owens",
+           "helmut lang","zadig & voltaire","zadig et voltaire","zadig voltaire"],
+  mid:    ["reformation","mother","frame","rag & bone","rag and bone","rag&bone",
+           "maje","ba&sh","bash","sandro","vince","theory","allsaints","all saints",
+           "the great","doen","staud","l'agence","lagence","iro","wilfred","babaton",
+           "paige","agolde","rails","alo","alo yoga","lululemon","vuori","skims","ag"],
+  selective:["zara","free people","madewell","j.crew","jcrew","j crew","loft",
+           "anthropologie","abercrombie","pacsun","brandy melville","we the free",
+           "fp movement","levi's","levis","levi","adidas"]
+};
+
+const TIER_LABEL = {luxury:"Luxury",high:"High-End",mid:"Mid-Range",selective:"Selective"};
+
+/* --- SOP Section 5: Category pricing ranges by tier --- */
+/* keys: aliases the buyer might type -> canonical category */
+const CATEGORY_ALIASES = {
+  "jeans":"denim","jean":"denim","denim":"denim","pants":"denim","trousers":"denim",
+  "dress":"dresses","dresses":"dresses","gown":"dresses",
+  "top":"tops","tops":"tops","blouse":"tops","shirt":"tops","tee":"tops","sweater":"tops","knit":"tops",
+  "jacket":"jackets","jackets":"jackets","coat":"jackets","outerwear":"jackets","blazer":"jackets",
+  "shoe":"shoes","shoes":"shoes","heels":"shoes","boots":"shoes","sneakers":"shoes","sandals":"shoes","flats":"shoes",
+  "bag":"bags","bags":"bags","purse":"bags","handbag":"bags","tote":"bags","clutch":"bags",
+  "skirt":"skirts","skirts":"skirts","shorts":"skirts","short":"skirts"
+};
+
+const CATEGORY_RANGES = {
+  /* [base_low, base_high, high_low, high_high, mid_low, mid_high, sel_low, sel_high] */
+  denim:   {label:"Jeans / Denim",      base:[60,120],  high:[100,180], mid:[70,120],  selective:[40,80]},
+  dresses: {label:"Dresses",            base:[60,150],  high:[120,300], mid:[75,150],  selective:[40,80]},
+  tops:    {label:"Tops / Blouses",     base:[40,90],   high:[80,200],  mid:[50,90],   selective:[25,50]},
+  jackets: {label:"Jackets / Outerwear",base:[100,250], high:[200,500], mid:[120,250], selective:[60,120]},
+  shoes:   {label:"Shoes",              base:[80,200],  high:[150,400], mid:[100,200], selective:[50,100]},
+  bags:    {label:"Bags",               base:[100,300], high:[200,600], mid:[120,300], selective:[50,120]},
+  skirts:  {label:"Skirts / Shorts",    base:[40,90],   high:[80,180],  mid:[50,90],   selective:[25,50]}
+};
+
+/* --- SOP Section 7: Demand matrix --- */
+const DEMAND_ADJ = {
+  High:   {pct:+0.15, note:"Top of range (+15%)"},
+  Medium: {pct: 0.00, note:"Within range (no change)"},
+  Low:    {pct:-0.18, note:"Bottom of range (-18%)"}
+};
+
+/* --- SOP Section 8: Condition framework --- */
+const CONDITION_ADJ = {
+  "New":       {pct: 0.00, note:"Premium — top of range"},
+  "Like-New":  {pct: 0.00, note:"Premium — top of range"},
+  "Pre-Owned": {pct:-0.07, note:"Standard (-7%)"},
+  "Good":      {pct:-0.13, note:"Worn (-13%)"},
+  "Fair":      {pct:-0.20, note:"Degraded (-20%)"}
+};
+
+const PRICE_FLOOR = 30;
+
+/* ---------- helpers ---------- */
+function detectTier(brandRaw){
+  const b = brandRaw.trim().toLowerCase();
+  if(!b) return null;
+  for(const tier of ["luxury","high","mid","selective"]){
+    for(const name of BRAND_TIERS[tier]){
+      if(b === name || b.includes(name) || name.includes(b)){
+        return tier;
+      }
+    }
+  }
+  return "unknown";
+}
+
+function detectCategory(catRaw){
+  const c = catRaw.trim().toLowerCase();
+  if(!c) return null;
+  if(CATEGORY_ALIASES[c]) return CATEGORY_ALIASES[c];
+  for(const alias in CATEGORY_ALIASES){
+    if(c.includes(alias)) return CATEGORY_ALIASES[alias];
+  }
+  return "unknown";
+}
+
+function money(n){ return "$"+Math.round(n).toLocaleString(); }
+
+/* ---------- main ---------- */
+let lastResult = null;
+
+/* ============================================================
+   DATA CONNECTOR — live eBay listing data
+   ============================================================ */
+const CONNECTOR_URL = "https://posh-duck-connector.onrender.com";
+
+/* Calls the connector, then fills the "Automatic data feed" box
+   for whichever result is currently shown. */
+async function loadConnectorData(brand, category, description){
+  const boxes = document.querySelectorAll(".auto-box[data-live]");
+  if(boxes.length === 0) return;
+
+  boxes.forEach(b => {
+    b.innerHTML = '<div class="auto-title"><span>eBay live listings</span>'
+      + '<span class="pending-pill" style="background:var(--steel)">Loading…</span></div>'
+      + '<p>Contacting eBay — first lookup can take up to a minute if the service was idle.</p>';
+  });
+
+  const params = new URLSearchParams({ brand, category, description });
+
+  try {
+    const res = await fetch(`${CONNECTOR_URL}/price?${params.toString()}`);
+    if(!res.ok) throw new Error("Connector returned " + res.status);
+    const data = await res.json();
+    renderConnectorData(data);
+  } catch (err) {
+    document.querySelectorAll(".auto-box[data-live]").forEach(b => {
+      b.innerHTML = '<div class="auto-title"><span>eBay live listings</span>'
+        + '<span class="pending-pill" style="background:var(--crimson)">Unavailable</span></div>'
+        + '<p>Could not reach the data service right now. The price above is still '
+        + 'valid — use the comp buttons to check eBay manually.</p>';
+    });
+  }
+}
+
+function renderConnectorData(data){
+  const ebay = data.ebay || {};
+  const shopify = data.shopify || {};
+
+  /* Shopify panel — Posh Duck's own sold history (the most useful signal) */
+  let shopHtml;
+  if(shopify.error){
+    shopHtml = '<div class="auto-title"><span>Posh Duck sold history</span>'
+             + '<span class="pending-pill" style="background:var(--crimson)">Error</span></div>'
+             + '<p>Could not retrieve Shopify data: '+shopify.error+'</p>';
+  } else if(shopify.status === "not_installed"){
+    shopHtml = '<div class="auto-title"><span>Posh Duck sold history</span>'
+             + '<span class="pending-pill" style="background:var(--steel)">Not connected</span></div>'
+             + '<p>Shopify is not connected to the connector yet.</p>';
+  } else if(!shopify.count || shopify.count === 0){
+    shopHtml = '<div class="auto-title"><span>Posh Duck sold history</span>'
+             + '<span class="pending-pill" style="background:var(--steel)">No prior sales</span></div>'
+             + '<p>No matching items found in your recent sold history (last ~250 orders). '
+             + 'Either you have not sold this brand recently, or try broader search terms.</p>';
+  } else {
+    shopHtml = '<div class="auto-title"><span>Posh Duck sold history</span>'
+             + '<span class="pending-pill" style="background:var(--crimson)">'+shopify.count+' sold</span></div>'
+             + '<div class="auto-row"><span>Lowest sold</span><b>$'+shopify.low.toLocaleString()+'</b></div>'
+             + '<div class="auto-row"><span>Median sold</span><b>$'+shopify.median.toLocaleString()+'</b></div>'
+             + '<div class="auto-row"><span>Highest sold</span><b>$'+shopify.high.toLocaleString()+'</b></div>'
+             + '<p style="margin-top:7px;">What this brand has actually sold for at Posh Duck. '
+             + 'The single best reference point for your pricing.</p>';
+  }
+
+  /* eBay panel — current market asking prices */
+  let ebayHtml;
+  if(ebay.error){
+    ebayHtml = '<div class="auto-title"><span>eBay live listings</span>'
+             + '<span class="pending-pill" style="background:var(--crimson)">Error</span></div>'
+             + '<p>eBay did not return data for this search.</p>';
+  } else if(!ebay.count || ebay.count === 0){
+    ebayHtml = '<div class="auto-title"><span>eBay live listings</span>'
+             + '<span class="pending-pill" style="background:var(--steel)">No matches</span></div>'
+             + '<p>No current eBay listings matched this search.</p>';
+  } else {
+    ebayHtml = '<div class="auto-title"><span>eBay live listings</span>'
+             + '<span class="pending-pill" style="background:var(--navy)">'+ebay.count+' found</span></div>'
+             + '<div class="auto-row"><span>Lowest listed</span><b>$'+ebay.low.toLocaleString()+'</b></div>'
+             + '<div class="auto-row"><span>Median listed</span><b>$'+ebay.median.toLocaleString()+'</b></div>'
+             + '<div class="auto-row"><span>Highest listed</span><b>$'+ebay.high.toLocaleString()+'</b></div>'
+             + '<p style="margin-top:7px;">Current asking prices on eBay. Sold prices typically run lower.</p>';
+  }
+
+  /* combine — Shopify first since it's the better signal */
+  const combined = '<div style="margin-bottom:12px;background:#fff;border:1px solid var(--crimson);'
+                 + 'border-radius:9px;padding:13px;">' + shopHtml + '</div>'
+                 + '<div style="background:var(--paper);border:1px dashed var(--steel);'
+                 + 'border-radius:9px;padding:13px;">' + ebayHtml + '</div>';
+
+  document.querySelectorAll(".auto-box[data-live]").forEach(b => {
+    b.style.border = 'none';
+    b.style.padding = '0';
+    b.style.background = 'transparent';
+    b.innerHTML = combined;
+  });
+
+  /* store both on lastResult and refresh the consignor report */
+  if(lastResult){
+    lastResult.ebayData = ebay;
+    lastResult.shopifyData = shopify;
+    renderReport(lastResult);
+  }
+}
+
+function priceItem(){
+  const brand = document.getElementById('brand').value;
+  const category = document.getElementById('category').value;
+  const description = document.getElementById('description').value;
+  const demand = document.getElementById('demand').value;
+  const condition = document.getElementById('condition').value;
+
+  const emptyState = document.getElementById('emptyState');
+  const body = document.getElementById('resultBody');
+
+  if(!brand.trim() || !category.trim()){
+    emptyState.style.display='flex';
+    body.style.display='none';
+    emptyState.querySelector('p').textContent =
+      'Please enter at least a brand and a category to calculate a price.';
+    return;
+  }
+
+  const tier = detectTier(brand);
+  const catKey = detectCategory(category);
+
+  /* ---- handle unknown category ---- */
+  if(catKey === "unknown" || catKey === null){
+    emptyState.style.display='flex';
+    body.style.display='none';
+    emptyState.querySelector('p').textContent =
+      'Category "'+category+'" was not recognized. Try: denim, dress, top, jacket, shoes, bag, or skirt.';
+    return;
+  }
+
+  /* ---- resolve tier for range selection ---- */
+  let rangeTier = tier;
+  let tierNote = "";
+  if(tier === "unknown" || tier === null){
+    rangeTier = "mid";
+    tierNote = "Brand not in SOP list — treated as Mid-Range. Verify manually.";
+  }
+
+  const cat = CATEGORY_RANGES[catKey];
+  /* ---- LUXURY: SOP says always comp. Do NOT calculate a price. ---- */
+  if(rangeTier === "luxury"){
+    lastResult = {brand,category,description,demand,condition,
+                  tier:"luxury",catLabel:cat.label,
+                  luxury:true};
+    renderLuxury(lastResult);
+    renderReport(lastResult);
+    loadConnectorData(brand, category, description);
+    return;
+  }
+
+  let baseRange;
+  if(rangeTier === "high")        baseRange = cat.high;
+  else if(rangeTier === "mid")    baseRange = cat.mid;
+  else                            baseRange = cat.selective;
+
+  let lo = baseRange[0], hi = baseRange[1];
+
+  /* ---- SOP Step 3: demand adjustment ---- */
+  const dem = DEMAND_ADJ[demand];
+  lo = lo * (1 + dem.pct);
+  hi = hi * (1 + dem.pct);
+
+  /* ---- SOP Step 4: condition adjustment ---- */
+  const con = CONDITION_ADJ[condition];
+  lo = lo * (1 + con.pct);
+  hi = hi * (1 + con.pct);
+
+  /* ---- suggested price: midpoint, nudged by demand ---- */
+  let suggested;
+  if(demand === "High")      suggested = lo + (hi-lo)*0.72;
+  else if(demand === "Low")  suggested = lo + (hi-lo)*0.30;
+  else                       suggested = lo + (hi-lo)*0.50;
+
+  /* ---- floor ---- */
+  let floored = false;
+  if(suggested < PRICE_FLOOR){ suggested = PRICE_FLOOR; floored = true; }
+  if(lo < PRICE_FLOOR) lo = PRICE_FLOOR;
+
+  /* ---- flags ---- */
+  const flags = [];
+  if(tierNote){
+    flags.push({type:'info', text:'<b>'+tierNote+'</b>'});
+  }
+  if(condition === "Fair"){
+    flags.push({type:'warn', text:'<b>Fair condition.</b> SOP: degraded items take -15% to -25%. Confirm the item is still worth taking.'});
+  }
+  if(floored){
+    flags.push({type:'info', text:'<b>$30 floor applied.</b> Calculated price fell below the SOP minimum.'});
+  }
+
+  lastResult = {brand,category,description,demand,condition,
+                tier:rangeTier,catLabel:cat.label,
+                lo,hi,suggested,flags};
+
+  renderResult(lastResult, dem, con, baseRange);
+  renderReport(lastResult);
+  loadConnectorData(brand, category, description);
+}
+
+/* ---------- LUXURY: buyer enters comps, tool calculates price ---------- */
+function renderLuxury(r){
+  document.getElementById('emptyState').style.display='none';
+  const body = document.getElementById('resultBody');
+  body.style.display='block';
+
+  const q = encodeURIComponent([r.brand, r.category, r.description].filter(Boolean).join(' '));
+  const ebayURL = 'https://www.ebay.com/sch/i.html?_nkw='+q+'&LH_Sold=1&LH_Complete=1';
+  const trrURL  = 'https://www.therealreal.com/products?keywords='+q;
+  const vestURL = 'https://www.vestiairecollective.com/search/?q='+q;
+  const fashURL = 'https://www.fashionphile.com/shop?search='+q;
+
+  body.innerHTML = `
+    <div class="price-hero">
+      <span class="tier-chip">Luxury · ${r.catLabel}</span>
+      <div class="suggested" id="luxPrice" style="font-size:40px;color:var(--steel);">— —</div>
+      <div class="suggested-label">Suggested Price</div>
+      <div class="range" id="luxRange" style="visibility:hidden;">Range <b>$0</b> – <b>$0</b></div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-tag"><span>Brand:</span> ${r.brand}</div>
+      <div class="meta-tag"><span>Demand:</span> ${r.demand}</div>
+      <div class="meta-tag"><span>Condition:</span> ${r.condition}</div>
+    </div>
+
+    <div class="flag flag-info">
+      <span class="dot">i</span>
+      <div><b>Luxury item — price from comps.</b> Open the searches below, read the
+      current/sold prices for the closest matches, and enter the numbers. The tool
+      calculates the suggested price for you.</div>
+    </div>
+
+    <div class="comp-block">
+      <div class="comp-head">Step 1 — open the comp searches</div>
+      <div class="comp-btns">
+        <a href="${trrURL}"  target="_blank" rel="noopener">The RealReal</a>
+        <a href="${vestURL}" target="_blank" rel="noopener">Vestiaire</a>
+        <a href="${fashURL}" target="_blank" rel="noopener">Fashionphile</a>
+        <a href="${ebayURL}" target="_blank" rel="noopener">eBay Sold</a>
+      </div>
+    </div>
+
+    <div class="comp-block">
+      <div class="comp-head">Step 2 — enter the prices you found</div>
+      <div class="lux-inputs">
+        <div class="lux-field">
+          <label>The RealReal</label>
+          <input type="text" inputmode="numeric" class="lux-comp" id="cTRR" placeholder="$">
+        </div>
+        <div class="lux-field">
+          <label>Vestiaire</label>
+          <input type="text" inputmode="numeric" class="lux-comp" id="cVest" placeholder="$">
+        </div>
+        <div class="lux-field">
+          <label>Fashionphile</label>
+          <input type="text" inputmode="numeric" class="lux-comp" id="cFash" placeholder="$">
+        </div>
+        <div class="lux-field">
+          <label>eBay Sold</label>
+          <input type="text" inputmode="numeric" class="lux-comp" id="cEbay" placeholder="$">
+        </div>
+      </div>
+      <p style="font-size:11.5px;color:var(--steel);margin-top:9px;">
+        Enter at least two. Leave blank any site without a close match.</p>
+    </div>
+
+    <button class="btn btn-primary" onclick="calcLuxuryPrice()">Calculate Luxury Price</button>
+
+    <div id="luxCalc"></div>
+
+    <div class="comp-block" style="margin-top:20px;">
+      <div class="comp-head">Automatic data feed</div>
+      <div class="auto-box">
+      <div class="auto-box" data-live>
+        <div class="auto-title">
+          <span>eBay live listings</span>
+          <span class="pending-pill">Loading…</span>
+        </div>
+        <p>Contacting eBay…</p>
+      </div>
+    </div>
+  `;
+  document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* calculate luxury price from buyer-entered comps */
+function calcLuxuryPrice(){
+  const ids = [["cTRR","The RealReal"],["cVest","Vestiaire"],
+               ["cFash","Fashionphile"],["cEbay","eBay Sold"]];
+  const entered = [];
+  ids.forEach(([id,name])=>{
+    const raw = document.getElementById(id).value.replace(/[^0-9.]/g,'');
+    const v = parseFloat(raw);
+    if(!isNaN(v) && v>0) entered.push({name,v});
+  });
+
+  const calcBox = document.getElementById('luxCalc');
+
+  if(entered.length < 2){
+    calcBox.innerHTML = `<div class="flag flag-warn" style="margin-top:14px;">
+      <span class="dot">!</span><div>Enter at least two comp prices to calculate.</div></div>`;
+    return;
+  }
+
+  /* median of entered comps */
+  const vals = entered.map(e=>e.v).sort((a,b)=>a-b);
+  let median;
+  const n = vals.length;
+  if(n%2) median = vals[(n-1)/2];
+  else    median = (vals[n/2-1]+vals[n/2])/2;
+
+  /* condition adjustment per SOP Section 8 */
+  const cond = lastResult.condition;
+  const con = CONDITION_ADJ[cond];
+  const suggested = median * (1 + con.pct);
+
+  const lo = vals[0];
+  const hi = vals[n-1];
+
+  /* write into hero */
+  const priceEl = document.getElementById('luxPrice');
+  priceEl.textContent = money(suggested);
+  priceEl.style.color = 'var(--navy)';
+  priceEl.style.fontSize = '58px';
+  const rangeEl = document.getElementById('luxRange');
+  rangeEl.style.visibility = 'visible';
+  rangeEl.innerHTML = 'Comp spread &nbsp;<b>'+money(lo)+'</b> &nbsp;–&nbsp; <b>'+money(hi)+'</b>';
+
+  calcBox.innerHTML = `
+    <div class="calc" style="margin-top:16px;">
+      <div class="calc-title">How this was calculated</div>
+      ${entered.map(e=>`
+        <div class="calc-line">
+          <div class="lbl">${e.name}</div>
+          <div class="val">${money(e.v)}</div>
+        </div>`).join('')}
+      <div class="calc-line">
+        <div class="lbl">Comp median <em>${entered.length} sources</em></div>
+        <div class="val">${money(median)}</div>
+      </div>
+      <div class="calc-line">
+        <div class="lbl">Condition adjustment <em>${con.note}</em></div>
+        <div class="val ${con.pct<0?'down':''}">${con.pct===0?'—':Math.round(con.pct*100)+'%'}</div>
+      </div>
+      <div class="calc-line">
+        <div class="lbl">Suggested price</div>
+        <div class="val">${money(suggested)}</div>
+      </div>
+    </div>
+  `;
+
+  /* update stored result + report */
+  lastResult.luxSuggested = suggested;
+  lastResult.luxLo = lo;
+  lastResult.luxHi = hi;
+  lastResult.luxComps = entered;
+  lastResult.luxMedian = median;
+  renderReport(lastResult);
+}
+
+function renderResult(r, dem, con, baseRange){
+  document.getElementById('emptyState').style.display='none';
+  const body = document.getElementById('resultBody');
+  body.style.display='block';
+
+  /* comp search URLs built from brand + category + description */
+  const q = encodeURIComponent([r.brand, r.category, r.description].filter(Boolean).join(' '));
+  const ebayURL = 'https://www.ebay.com/sch/i.html?_nkw='+q+'&LH_Sold=1&LH_Complete=1';
+  const trrURL  = 'https://www.therealreal.com/products?keywords='+q;
+  const vestURL = 'https://www.vestiairecollective.com/search/?q='+q;
+  const fashURL = 'https://www.fashionphile.com/shop?search='+q;
+
+  body.innerHTML = `
+    <div class="price-hero">
+      <span class="tier-chip">${TIER_LABEL[r.tier]} · ${r.catLabel}</span>
+      <div class="suggested">${money(r.suggested)}</div>
+      <div class="suggested-label">Suggested Price</div>
+      <div class="range">Range &nbsp;<b>${money(r.lo)}</b> &nbsp;–&nbsp; <b>${money(r.hi)}</b></div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-tag"><span>Brand:</span> ${r.brand}</div>
+      <div class="meta-tag"><span>Demand:</span> ${r.demand}</div>
+      <div class="meta-tag"><span>Condition:</span> ${r.condition}</div>
+    </div>
+
+    <div class="calc">
+      <div class="calc-title">How this was calculated (SOP flow)</div>
+      <div class="calc-line">
+        <div class="lbl">Base range <em>${TIER_LABEL[r.tier]} · ${r.catLabel}</em></div>
+        <div class="val">${money(baseRange[0])} – ${money(baseRange[1])}</div>
+      </div>
+      <div class="calc-line">
+        <div class="lbl">Demand adjustment <em>${dem.note}</em></div>
+        <div class="val ${dem.pct>0?'up':dem.pct<0?'down':''}">${dem.pct===0?'—':(dem.pct>0?'+':'')+Math.round(dem.pct*100)+'%'}</div>
+      </div>
+      <div class="calc-line">
+        <div class="lbl">Condition adjustment <em>${con.note}</em></div>
+        <div class="val ${con.pct<0?'down':''}">${con.pct===0?'—':Math.round(con.pct*100)+'%'}</div>
+      </div>
+      <div class="calc-line">
+        <div class="lbl">Final range</div>
+        <div class="val">${money(r.lo)} – ${money(r.hi)}</div>
+      </div>
+    </div>
+
+    ${r.flags.map(f=>`
+      <div class="flag flag-${f.type==='warn'?'warn':'info'}">
+        <span class="dot">${f.type==='warn'?'!':'i'}</span>
+        <div>${f.text}</div>
+      </div>`).join('')}
+
+    <div class="comps">
+      <div class="comp-block">
+        <div class="comp-head">Current listing prices — opens a search built from this item</div>
+        <div class="comp-btns">
+          <a href="${trrURL}"  target="_blank" rel="noopener">The RealReal</a>
+          <a href="${vestURL}" target="_blank" rel="noopener">Vestiaire</a>
+          <a href="${fashURL}" target="_blank" rel="noopener">Fashionphile</a>
+        </div>
+      </div>
+
+      <div class="comp-block">
+        <div class="comp-head">eBay sold listings</div>
+        <div class="comp-btns">
+          <a href="${ebayURL}" target="_blank" rel="noopener">Open eBay Sold Listings</a>
+        </div>
+      </div>
+
+      <div class="comp-block">
+        <div class="comp-head">Automatic data feed</div>
+        <div class="auto-box" data-live>
+          <div class="auto-title">
+            <span>eBay live listings</span>
+            <span class="pending-pill">Loading…</span>
+          </div>
+          <p>Contacting eBay…</p>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('resultCard').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ---------- printable consignor report ---------- */
+/* ---------- open / close the consignor report overlay ---------- */
+function openReport(){
+  if(!lastResult){
+    alert("Calculate an item first — then the consignor report will have something to show.");
+    return;
+  }
+  renderReport(lastResult);
+  document.getElementById('reportOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('reportOverlay').scrollTop=0;
+}
+function closeReport(){
+  document.getElementById('reportOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function renderReport(r){
+  if(!r) return;
+  const d = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const priceBlock = r.luxury
+    ? ( r.luxSuggested
+        ? `<h3>Suggested Price</h3>
+           <div class="r-price">${money(r.luxSuggested)}</div>
+           <table>
+             <tr><td>Comp spread</td><td>${money(r.luxLo)} – ${money(r.luxHi)}</td></tr>
+             <tr><td>Comp median</td><td>${money(r.luxMedian)}</td></tr>
+             <tr><td>Pricing method</td><td>Comp-based — median of comparable listings, condition-adjusted.</td></tr>
+           </table>`
+        : `<h3>Suggested Price</h3>
+           <div class="r-price" style="font-size:26px;">Comp Required — Luxury</div>
+           <table>
+             <tr><td>Pricing method</td><td>Comp-based. Enter comp prices in the tool to calculate.</td></tr>
+           </table>` )
+    : `<h3>Suggested Price</h3>
+       <div class="r-price">${money(r.suggested)}</div>
+       <table>
+         <tr><td>Price range</td><td>${money(r.lo)} – ${money(r.hi)}</td></tr>
+       </table>`;
+
+  /* eBay row — shows live data once the connector responds */
+  const e = r.ebayData;
+  let ebayRows;
+  if(e && e.count > 0){
+    ebayRows = `<tr><td>eBay live listings</td><td>${e.count} found — low ${money(e.low)}, median ${money(e.median)}, high ${money(e.high)} (current asking prices)</td></tr>`;
+  } else if(e && (e.error || e.count === 0)){
+    ebayRows = `<tr><td>eBay live listings</td><td>No current eBay matches for this search</td></tr>`;
+  } else {
+    ebayRows = `<tr><td>eBay live listings</td><td>Loading at pricing</td></tr>`;
+  }
+
+  /* Shopify row — Posh Duck's own sold history */
+  const s = r.shopifyData;
+  let shopifyRows;
+  if(s && s.count > 0){
+    shopifyRows = `<tr><td>Posh Duck sold history</td><td><b>${s.count} sold</b> — low ${money(s.low)}, median ${money(s.median)}, high ${money(s.high)}</td></tr>`;
+  } else if(s && s.status === "not_installed"){
+    shopifyRows = `<tr><td>Posh Duck sold history</td><td>Shopify not connected</td></tr>`;
+  } else if(s && (s.error || s.count === 0)){
+    shopifyRows = `<tr><td>Posh Duck sold history</td><td>No prior sales of this item in recent history</td></tr>`;
+  } else {
+    shopifyRows = `<tr><td>Posh Duck sold history</td><td>Loading at pricing</td></tr>`;
+  }
+
+  const compBlock = (r.luxury && r.luxComps)
+    ? `<h3>Comparable Pricing</h3>
+       <table>
+         ${r.luxComps.map(c=>`<tr><td>${c.name}</td><td>${money(c.v)}</td></tr>`).join('')}
+         ${shopifyRows}
+         ${ebayRows}
+       </table>`
+    : `<h3>Comparable Pricing</h3>
+       <table>
+         ${shopifyRows}
+         ${ebayRows}
+         <tr><td>The RealReal (current)</td><td>Checked at pricing</td></tr>
+         <tr><td>Vestiaire (current)</td><td>Checked at pricing</td></tr>
+         <tr><td>Fashionphile (current)</td><td>Checked at pricing</td></tr>
+       </table>`;
+
+  document.getElementById('report').innerHTML = `
+    <h1>The Posh Duck</h1>
+    <div class="r-sub">Pricing Report</div>
+
+    <h3>Item</h3>
+    <table>
+      <tr><td>Brand</td><td>${r.brand}</td></tr>
+      <tr><td>Category</td><td>${r.category}</td></tr>
+      <tr><td>Description</td><td>${r.description||'—'}</td></tr>
+      <tr><td>Demand</td><td>${r.demand}</td></tr>
+      <tr><td>Condition</td><td>${r.condition}</td></tr>
+      <tr><td>Tier</td><td>${TIER_LABEL[r.tier]}</td></tr>
+    </table>
+
+    ${priceBlock}
+
+    ${compBlock}
+
+    <p style="margin-top:24px;font-size:11px;color:#888;">
+      Generated ${d} · Pricing per The Posh Duck Master Pricing &amp; Inventory SOP.
+    </p>
+  `;
+}
+
+/* allow Enter in brand field to trigger pricing */
+document.getElementById('brand').addEventListener('keydown',e=>{if(e.key==='Enter')priceItem();});
+document.getElementById('category').addEventListener('keydown',e=>{if(e.key==='Enter')priceItem();});
+</script>
+</body>
+</html>
