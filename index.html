@@ -298,7 +298,7 @@
 
       <div class="field">
         <label for="category">Category</label>
-        <input type="text" id="category" placeholder="e.g. denim, dress, jacket, bag, shoes">
+        <input type="text" id="category" placeholder="e.g. denim, dress, jacket, bag, shoes, jewelry, sunglasses">
       </div>
 
       <div class="field">
@@ -391,7 +391,13 @@ const CATEGORY_ALIASES = {
   "jacket":"jackets","jackets":"jackets","coat":"jackets","outerwear":"jackets","blazer":"jackets",
   "shoe":"shoes","shoes":"shoes","heels":"shoes","boots":"shoes","sneakers":"shoes","sandals":"shoes","flats":"shoes",
   "bag":"bags","bags":"bags","purse":"bags","handbag":"bags","tote":"bags","clutch":"bags",
-  "skirt":"skirts","skirts":"skirts","shorts":"skirts","short":"skirts"
+  "skirt":"skirts","skirts":"skirts","shorts":"skirts","short":"skirts",
+  /* comp-only categories — too variable for fixed SOP ranges */
+  "jewelry":"accessories","jewellery":"accessories","necklace":"accessories","ring":"accessories",
+  "earring":"accessories","earrings":"accessories","bracelet":"accessories","watch":"accessories",
+  "sunglasses":"accessories","glasses":"accessories","shades":"accessories",
+  "belt":"accessories","scarf":"accessories","hat":"accessories","wallet":"accessories",
+  "accessory":"accessories","accessories":"accessories"
 };
 
 const CATEGORY_RANGES = {
@@ -402,7 +408,8 @@ const CATEGORY_RANGES = {
   jackets: {label:"Jackets / Outerwear",base:[100,250], high:[200,500], mid:[120,250], selective:[60,120]},
   shoes:   {label:"Shoes",              base:[80,200],  high:[150,400], mid:[100,200], selective:[50,100]},
   bags:    {label:"Bags",               base:[100,300], high:[200,600], mid:[120,300], selective:[50,120]},
-  skirts:  {label:"Skirts / Shorts",    base:[40,90],   high:[80,180],  mid:[50,90],   selective:[25,50]}
+  skirts:  {label:"Skirts / Shorts",    base:[40,90],   high:[80,180],  mid:[50,90],   selective:[25,50]},
+  accessories: {label:"Jewelry / Accessories", compOnly:true}
 };
 
 /* --- SOP Section 7: Demand matrix --- */
@@ -581,7 +588,7 @@ function priceItem(){
     emptyState.style.display='flex';
     body.style.display='none';
     emptyState.querySelector('p').textContent =
-      'Category "'+category+'" was not recognized. Try: denim, dress, top, jacket, shoes, bag, or skirt.';
+      'Category "'+category+'" was not recognized. Try: denim, dress, top, jacket, shoes, bag, skirt, jewelry, or sunglasses.';
     return;
   }
 
@@ -594,11 +601,14 @@ function priceItem(){
   }
 
   const cat = CATEGORY_RANGES[catKey];
-  /* ---- LUXURY: SOP says always comp. Do NOT calculate a price. ---- */
-  if(rangeTier === "luxury"){
+  /* ---- COMP-ONLY: luxury items OR jewelry/accessories. Do NOT calculate. ---- */
+  if(rangeTier === "luxury" || cat.compOnly){
+    const reason = cat.compOnly ? "category" : "luxury";
     lastResult = {brand,category,description,demand,condition,
-                  tier:"luxury",catLabel:cat.label,
-                  luxury:true};
+                  tier: rangeTier === "luxury" ? "luxury" : rangeTier,
+                  catLabel:cat.label,
+                  luxury:true,
+                  compReason:reason};
     renderLuxury(lastResult);
     renderReport(lastResult);
     loadConnectorData(brand, category, description);
@@ -666,9 +676,15 @@ function renderLuxury(r){
   const vestURL = 'https://www.vestiairecollective.com/search/?q='+q;
   const fashURL = 'https://www.fashionphile.com/shop?search='+q;
 
+  const isCategoryComp = r.compReason === "category";
+  const chipLabel = isCategoryComp ? r.catLabel : `Luxury · ${r.catLabel}`;
+  const explainLine = isCategoryComp
+    ? `<b>${r.catLabel} — price from comps.</b> This category varies too much by piece to use fixed ranges. Open the searches below, read the closest matches, and enter the numbers. The tool calculates from them.`
+    : `<b>Luxury item — price from comps.</b> Open the searches below, read the current/sold prices for the closest matches, and enter the numbers. The tool calculates the suggested price for you.`;
+
   body.innerHTML = `
     <div class="price-hero">
-      <span class="tier-chip">Luxury · ${r.catLabel}</span>
+      <span class="tier-chip">${chipLabel}</span>
       <div class="suggested" id="luxPrice" style="font-size:40px;color:var(--steel);">— —</div>
       <div class="suggested-label">Suggested Price</div>
       <div class="range" id="luxRange" style="visibility:hidden;">Range <b>$0</b> – <b>$0</b></div>
@@ -682,9 +698,7 @@ function renderLuxury(r){
 
     <div class="flag flag-info">
       <span class="dot">i</span>
-      <div><b>Luxury item — price from comps.</b> Open the searches below, read the
-      current/sold prices for the closest matches, and enter the numbers. The tool
-      calculates the suggested price for you.</div>
+      <div>${explainLine}</div>
     </div>
 
     <div class="comp-block">
